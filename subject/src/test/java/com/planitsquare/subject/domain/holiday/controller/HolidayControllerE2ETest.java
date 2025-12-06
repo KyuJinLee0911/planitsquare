@@ -11,7 +11,7 @@ import com.planitsquare.subject.domain.holiday._type.entity.HolidayType;
 import com.planitsquare.subject.domain.holiday._type.service.HolidayTypeReader;
 import com.planitsquare.subject.domain.holiday._type.service.HolidayTypeStore;
 import com.planitsquare.subject.domain.holiday.dto.HolidayDTO;
-import com.planitsquare.subject.domain.holiday.dto.request.RefreshHolidayRequest;
+import com.planitsquare.subject.domain.holiday.dto.request.UpdateHolidayRequest;
 import com.planitsquare.subject.domain.holiday.entity.Holiday;
 import com.planitsquare.subject.domain.holiday.service.HolidayReader;
 import com.planitsquare.subject.domain.holiday.service.HolidayStore;
@@ -163,7 +163,7 @@ public class HolidayControllerE2ETest {
     class RefreshApi {
         @Test
         void POST_api_holidays_기존_데이터_삭제후_외부데이터로_재동기화() throws Exception {
-            RefreshHolidayRequest request = new RefreshHolidayRequest(2025, "KR");
+            UpdateHolidayRequest request = new UpdateHolidayRequest(2025, "KR");
             List<HolidayDTO> externalDtos = List.of(
                     new HolidayDTO(LocalDate.of(2025, 1, 1),
                             "새 새해",

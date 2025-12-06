@@ -8,7 +8,7 @@ import com.planitsquare.subject.domain.holiday._type.entity.HolidayType;
 import com.planitsquare.subject.domain.holiday._type.service.HolidayTypeStore;
 import com.planitsquare.subject.domain.holiday.dto.HolidayDTO;
 import com.planitsquare.subject.domain.holiday.dto.HolidaySearchCondition;
-import com.planitsquare.subject.domain.holiday.dto.request.RefreshHolidayRequest;
+import com.planitsquare.subject.domain.holiday.dto.request.UpdateHolidayRequest;
 import com.planitsquare.subject.domain.holiday.dto.response.HolidayResponse;
 import com.planitsquare.subject.domain.holiday.entity.Holiday;
 import com.planitsquare.subject.global.common.utils.ExternalApiClient;
@@ -36,10 +36,10 @@ public class HolidayService {
     }
 
     @Transactional
-    public int refresh(RefreshHolidayRequest request) {
+    public int refresh(UpdateHolidayRequest request) {
         String countryCode = request.countryCode();
         int year = request.year();
-        
+
         Country country = countryReader.getCountry(countryCode);
 
         List<HolidayDTO> dtoList = externalApiClient.getHolidays(year, countryCode);
@@ -49,8 +49,8 @@ public class HolidayService {
         }
 
         // 기존에 존재하는 데이터 삭제
-        List<Holiday> existing = holidayReader.getByCountryAndYear(country, year);
-        if (!existing.isEmpty()) {
+        long count = holidayReader.countExistingDataBetween(year, year, countryCode);
+        if (count > 0) {
             holidayTypeStore.removeByCountryAndYear(country, year);
             holidayCountyStore.removeByCountryAndYear(country, year);
             holidayStore.removeByCountryAndYear(country, year);
@@ -59,6 +59,20 @@ public class HolidayService {
         // 새로 가져온 데이터 중복 제거 후 Entity 생성해서 저장
         int size = saveAllEntities(dtoList, country);
         return size;
+    }
+
+    @Transactional
+    public void deleteHolidays(UpdateHolidayRequest request) {
+        int year = request.year();
+        String countryCode = request.countryCode();
+        Country country = countryReader.getCountry(countryCode);
+
+        long count = holidayReader.countExistingDataBetween(year, year, countryCode);
+        if (count > 0) {
+            holidayTypeStore.removeByCountryAndYear(country, year);
+            holidayCountyStore.removeByCountryAndYear(country, year);
+            holidayStore.removeByCountryAndYear(country, year);
+        }
     }
 
     public int saveAllEntities(List<HolidayDTO> holidays, Country country) {

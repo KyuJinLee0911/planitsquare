@@ -6,7 +6,7 @@ import com.planitsquare.subject.domain.country.service.CountryReader;
 import com.planitsquare.subject.domain.holiday._county.service.HolidayCountyStore;
 import com.planitsquare.subject.domain.holiday._type.service.HolidayTypeStore;
 import com.planitsquare.subject.domain.holiday.dto.HolidayDTO;
-import com.planitsquare.subject.domain.holiday.dto.request.RefreshHolidayRequest;
+import com.planitsquare.subject.domain.holiday.dto.request.UpdateHolidayRequest;
 import com.planitsquare.subject.domain.holiday.entity.Holiday;
 import com.planitsquare.subject.global.common.utils.ExternalApiClient;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ public class HolidayServiceRefreshTest {
     @Test
     void refresh_외부_API_결과_없으면_예외처리한다() {
         // given
-        RefreshHolidayRequest request = new RefreshHolidayRequest(2025, "KR");
+        UpdateHolidayRequest request = new UpdateHolidayRequest(2025, "KR");
         CountryDTO countryDTO = new CountryDTO("KR", "Korea");
         Country country = Country.from(countryDTO);
 
@@ -65,7 +65,7 @@ public class HolidayServiceRefreshTest {
     @Test
     void refresh_기존_데이터_있으면_삭제후_saveAllEntities_호출한다() {
         // given
-        RefreshHolidayRequest request = new RefreshHolidayRequest(2025, "KR");
+        UpdateHolidayRequest request = new UpdateHolidayRequest(2025, "KR");
         CountryDTO countryDTO = new CountryDTO("KR", "Korea");
         Country country = Country.from(countryDTO);
         HolidayDTO dto = new HolidayDTO(
@@ -75,7 +75,7 @@ public class HolidayServiceRefreshTest {
                 "KR",
                 true,
                 true,
-                null,
+                List.of("KR-11"),
                 null,
                 List.of("Public")
         );
@@ -85,7 +85,7 @@ public class HolidayServiceRefreshTest {
 
         when(countryReader.getCountry("KR")).thenReturn(country);
         when(externalApiClient.getHolidays(2025, "KR")).thenReturn(apiResponse);
-        when(holidayReader.getByCountryAndYear(country, 2025)).thenReturn(List.of(existing));
+        when(holidayReader.countExistingDataBetween(2025, 2025, "KR")).thenReturn(1L);
 
         HolidayService spyService = Mockito.spy(holidayService);
         doReturn(1).when(spyService).saveAllEntities(apiResponse, country);
@@ -94,7 +94,7 @@ public class HolidayServiceRefreshTest {
         int result = spyService.refresh(request);
 
         // then
-        verify(holidayReader).getByCountryAndYear(country, 2025);
+        verify(holidayReader).countExistingDataBetween(2025, 2025, "KR");
 
         verify(holidayTypeStore).removeByCountryAndYear(country, 2025);
         verify(holidayCountyStore).removeByCountryAndYear(country, 2025);
@@ -107,7 +107,7 @@ public class HolidayServiceRefreshTest {
     @Test
     void refresh_기존_데이터_없으면_삭제없이_saveAllEntities만_호출한다() {
         // given
-        RefreshHolidayRequest request = new RefreshHolidayRequest(2025, "KR");
+        UpdateHolidayRequest request = new UpdateHolidayRequest(2025, "KR");
         CountryDTO countryDTO = new CountryDTO("KR", "Korea");
         Country country = Country.from(countryDTO);
         HolidayDTO dto = new HolidayDTO(
@@ -125,7 +125,6 @@ public class HolidayServiceRefreshTest {
 
         when(countryReader.getCountry("KR")).thenReturn(country);
         when(externalApiClient.getHolidays(2025, "KR")).thenReturn(apiResponse);
-        when(holidayReader.getByCountryAndYear(country, 2025)).thenReturn(List.of());
 
         HolidayService spyService = Mockito.spy(holidayService);
         doReturn(1).when(spyService).saveAllEntities(apiResponse, country);
@@ -134,6 +133,8 @@ public class HolidayServiceRefreshTest {
         int result = spyService.refresh(request);
 
         // then
+        verify(holidayReader).countExistingDataBetween(2025, 2025, "KR");
+
         verify(holidayTypeStore, never()).removeByCountryAndYear(any(), anyInt());
         verify(holidayCountyStore, never()).removeByCountryAndYear(any(), anyInt());
         verify(holidayStore, never()).removeByCountryAndYear(any(), anyInt());

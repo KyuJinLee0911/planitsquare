@@ -1,6 +1,6 @@
 package com.planitsquare.subject.domain.holiday.dto.request;
 
-public record RefreshHolidayRequest(
+public record UpdateHolidayRequest(
         Integer year,
         String countryCode
 ) {

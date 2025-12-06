@@ -1,7 +1,7 @@
 package com.planitsquare.subject.domain.holiday.controller;
 
 import com.planitsquare.subject.domain.holiday.dto.HolidaySearchCondition;
-import com.planitsquare.subject.domain.holiday.dto.request.RefreshHolidayRequest;
+import com.planitsquare.subject.domain.holiday.dto.request.UpdateHolidayRequest;
 import com.planitsquare.subject.domain.holiday.dto.response.HolidayResponse;
 import com.planitsquare.subject.domain.holiday.service.HolidayService;
 import com.planitsquare.subject.global.common.dto.ApiResponse;
@@ -35,9 +35,17 @@ public class HolidayController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Integer>> refresh(
-            @RequestBody RefreshHolidayRequest request
+            @RequestBody UpdateHolidayRequest request
     ) {
         int response = holidayService.refresh(request);
         return ApiResponse.ok(response);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @RequestBody UpdateHolidayRequest request
+    ) {
+        holidayService.deleteHolidays(request);
+        return ApiResponse.ok();
     }
 }
