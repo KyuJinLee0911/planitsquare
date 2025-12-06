@@ -3,19 +3,15 @@ package com.planitsquare.subject.domain.holiday.service;
 import com.planitsquare.subject.domain.country.dto.CountryDTO;
 import com.planitsquare.subject.domain.country.entity.Country;
 import com.planitsquare.subject.domain.country.service.CountryStore;
-import com.planitsquare.subject.domain.holiday._county.entity.HolidayCounty;
-import com.planitsquare.subject.domain.holiday._county.service.HolidayCountyStore;
-import com.planitsquare.subject.domain.holiday._type.entity.HolidayType;
-import com.planitsquare.subject.domain.holiday._type.service.HolidayTypeStore;
 import com.planitsquare.subject.domain.holiday.dto.HolidayDTO;
-import com.planitsquare.subject.domain.holiday.entity.Holiday;
 import com.planitsquare.subject.global.common.utils.ExternalApiClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +20,7 @@ public class HolidayBootstrapService {
     private final ExternalApiClient externalApiClient;
     private final HolidayReader holidayReader;
     private final CountryStore countryStore;
-    private final HolidayStore holidayStore;
-    private final HolidayCountyStore holidayCountyStore;
-    private final HolidayTypeStore holidayTypeStore;
+    private final HolidayService holidayService;
 
     @Transactional
     public void bootstrap(int from, int to) {
@@ -78,49 +72,12 @@ public class HolidayBootstrapService {
             return 0;
         }
 
-        Map<String, Holiday> holidayMap = new HashMap<>();
-        List<HolidayType> holidayTypes = new ArrayList<>();
-        List<HolidayCounty> holidayCounties = new ArrayList<>();
+        int size = holidayService.saveAllEntities(holidays, country);
 
-        Map<Holiday, Set<String>> typeCodesByHoliday = new HashMap<>();
-        Map<Holiday, Set<String>> countyCodesByHoliday = new HashMap<>();
-        for (HolidayDTO dto : holidays) {
-            String key = dto.countryCode() + "|" + dto.date() + "|" + dto.name();
-            Holiday holiday = holidayMap.get(key);
-            if (holiday == null) {
-                holiday = Holiday.from(dto, country);
-                holidayMap.put(key, holiday);
-            }
-
-            if (dto.types() != null) {
-                Set<String> typeSet = typeCodesByHoliday
-                        .computeIfAbsent(holiday, h -> new LinkedHashSet<>());
-                for (String typeCode : dto.types()) {
-                    if (typeSet.add(typeCode)) {
-                        holidayTypes.add(HolidayType.of(holiday, typeCode));
-                    }
-                }
-            }
-
-            if (dto.counties() != null) {
-                Set<String> countySet = countyCodesByHoliday
-                        .computeIfAbsent(holiday, h -> new LinkedHashSet<>());
-                for (String countyCode : dto.counties()) {
-                    if (countySet.add(countyCode)) {
-                        holidayCounties.add(HolidayCounty.of(holiday, countyCode));
-                    }
-                }
-            }
-        }
-        List<Holiday> holidayEntities = new ArrayList<>(holidayMap.values());
-
-        holidayStore.saveAll(holidayEntities);
-        holidayCountyStore.saveAll(holidayCounties);
-        holidayTypeStore.saveAll(holidayTypes);
-
-        log.info("[HolidayBootstrap] {}국가의 {}년도 {}개의 공휴일 데이터가 저장되었습니다.", country.getName(), year, holidayEntities.size());
-        return holidayEntities.size();
+        log.info("[HolidayBootstrap] {}국가의 {}년도 {}개의 공휴일 데이터가 저장되었습니다.", country.getName(), year, size);
+        return size;
     }
+
 
     private List<HolidayDTO> retryGetHolidays(String countryCode, int year, int maxAttempt) {
         for (int attempt = 1; attempt <= maxAttempt; attempt++) {
