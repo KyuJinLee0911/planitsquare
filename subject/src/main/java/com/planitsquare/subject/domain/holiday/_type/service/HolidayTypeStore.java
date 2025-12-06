@@ -15,4 +15,8 @@ public class HolidayTypeStore {
     public List<HolidayType> saveAll(List<HolidayType> holidayTypes) {
         return repository.saveAll(holidayTypes);
     }
+
+    public void removeAll() {
+        repository.deleteAll();
+    }
 }

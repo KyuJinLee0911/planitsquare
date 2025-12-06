@@ -15,4 +15,8 @@ public class HolidayCountyStore {
     public List<HolidayCounty> saveAll(List<HolidayCounty> holidayCounties) {
         return repository.saveAll(holidayCounties);
     }
+
+    public void removeAll() {
+        repository.deleteAll();
+    }
 }

@@ -15,4 +15,8 @@ public class HolidayStore {
     public List<Holiday> saveAll(List<Holiday> holidayEntities) {
         return holidayRepository.saveAll(holidayEntities);
     }
+
+    public void removeAll() {
+        holidayRepository.deleteAll();
+    }
 }
