@@ -122,7 +122,7 @@ java -jar build/libs/subject-0.0.1-SNAPSHOPT.jar
   </details>
 
 ## 2. 재동기화
-* **엔드포인트** : HTTP POST (/api/holidays)
+* **엔드포인트** : HTTP PUT (/api/holidays)
 * **파라미터**
   * **RequestBody**
     ```json
