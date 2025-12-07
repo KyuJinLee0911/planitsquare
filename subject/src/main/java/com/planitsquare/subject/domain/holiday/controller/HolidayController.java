@@ -36,7 +36,7 @@ public class HolidayController {
         return ApiResponse.ok(responses);
     }
 
-    @PostMapping
+    @PutMapping
     @Operation(summary = "공휴일 데이터 재동기화",
             description = "특정 연도, 특정 국가의 공휴일 데이터를 재동기화 합니다. 기존 데이터가 존재한다면 삭제하고 다시 받아와 저장합니다.")
     public ResponseEntity<ApiResponse<Integer>> refresh(
