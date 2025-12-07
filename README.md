@@ -1,8 +1,18 @@
 # planitsquare
 플랜잇스퀘어 백엔드 개발자 과제 전형입니다.
+| 속성 | 버전/도구 |
+| --- | --- |
+| Java | 21 |
+| Gradle | 8.14.3 |
+| Spring Boot | 3.4.12 |
+| DB | H2(Inmemory) |
+| ORM | JPA(Hibernate) |
+| Query | QueryDSL 5.0.0 |
+| Test | JUnit5, Mockito |
+
+> 별도의 DB 서버나 Docker 컨테이너를 띄울 필요 없이 애플리케이션 실행만으로 바로 테스트할 수 있습니다.
 
 # 빌드 및 실행방법
-별도의 DB 서버나 Docker 컨테이너를 띄울 필요 없이 애플리케이션 실행만으로 바로 테스트할 수 있습니다.
 ## 빌드
 ### 1) 의존성 설치 및 빌드
 프로젝트 루트에서 다음 명령어를 실행합니다.
