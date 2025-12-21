@@ -187,7 +187,7 @@ public class HolidayControllerE2ETest {
                     )
             );
             when(externalApiClient.getHolidays(2025, "KR")).thenReturn(externalDtos);
-            MvcResult result = mockMvc.perform(post("/api/holidays")
+            MvcResult result = mockMvc.perform(put("/api/holidays")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
