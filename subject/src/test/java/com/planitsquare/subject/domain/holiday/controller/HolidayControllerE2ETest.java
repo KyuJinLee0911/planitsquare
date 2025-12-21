@@ -162,7 +162,7 @@ public class HolidayControllerE2ETest {
     @DisplayName("공휴일 재동기화 API Post(/api/holidays)")
     class RefreshApi {
         @Test
-        void POST_api_holidays_기존_데이터_삭제후_외부데이터로_재동기화() throws Exception {
+        void PUT_api_holidays_기존_데이터_삭제후_외부데이터로_재동기화() throws Exception {
             UpdateHolidayRequest request = new UpdateHolidayRequest(2025, "KR");
             List<HolidayDTO> externalDtos = List.of(
                     new HolidayDTO(LocalDate.of(2025, 1, 1),
